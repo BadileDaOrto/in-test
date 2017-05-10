@@ -1,11 +1,11 @@
 [DBmaria01]
-10.0.3.4
+10.0.3.4    ansible_port=3220
 
 [DBmaria02]
-10.0.3.5
+10.0.3.5    ansible_port=3221
 
 [proxysql-test]
-10.0.3.6
+10.0.3.6    ansible_port=3222
 
 [DB-test:children]
 DBmaria01
