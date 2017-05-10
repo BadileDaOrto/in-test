@@ -1,0 +1,12 @@
+[DBmaria01]
+10.0.3.4
+
+[DBmaria02]
+10.0.3.5
+
+[proxysql-test]
+10.0.3.6
+
+[DB-test:children]
+DBmaria01
+DBmaria02

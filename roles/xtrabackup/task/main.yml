@@ -1,0 +1,38 @@
+---
+# tasks file for xtrabackup
+  - include: setup.yml
+    when: is_backup_script is undefined or is_backup_script == False
+
+  # - include: backup.yml
+  #   when: is_backup_script is defined and is_backup_script == True
+
+  - name: create backup user on mysql with custom privileges
+    mysql_user: login_user=root login_password={{ mysql_root_password }} name={{ backup_usr }} host=localhost password={{ backup_pwd }} priv="*.*:SELECT,FILE,LOCK TABLES,SHOW VIEW,PROCESS,EVENT"
+
+  - name: create backup directory
+    file: "path={{ backup_path }} state=directory owner=root group=root mode=0750"
+
+  - name: create secure_db_key_path directory per i DB
+    file: "path={{ secure_db_key_path }} state=directory owner=root group=root mode=0700"
+
+  - name: copy backup script
+    template: src=xtrabackup_db.sh.j2 dest=/opt/scripts/backup_db.sh owner=root mode=0700 backup=yes
+
+  - name: copy incremental backup script
+    template: src=xtrabackup_incremental_db.sh.j2 dest=/opt/scripts/xtrabackup_incremental_db.sh owner=root mode=0700 backup=yes
+
+  # - name: touch crontab
+  #   file: path=/etc/crontab state=touch
+
+  - name: creo la chiave di cifrature dei backup
+      command: openssl enc -aes-256-cbc -pass pass:{{ backup_pwd }} -P -md sha1 | grep iv | cut -d'=' -f2 > {{ db_key_file }}
+
+  - name: add backup script to crontab file
+    lineinfile:
+      'dest=/etc/crontab
+      insertafter="EOF"
+      regexp="^#?[0-9\*\s\t\-]+root[\s\t]+/opt/scripts/xtrabackup_db.sh"
+      line="30 21 * * fri	root /opt/scripts/xtrabackup_db.sh"
+      line="30 21 * * *	root /opt/scripts/xtrabackup_incremental_db.sh"
+      state=present
+      backup=yes'

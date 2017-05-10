@@ -1,0 +1,14 @@
+---
+#Install xtrabackup service
+#usage: ansible-playbook xtrabackup.yml -i MY_CUSTOM_HOSTS_FILE --extra-vars="hosts=MY_CUSTOM_HOST" --ask-become-pass
+- name: xtrabackup section
+
+  hosts: '{{ hosts }}'
+  become: True
+
+  # vars_files:
+  #   - global_vars/user_credentials.yml
+  #   - global_vars/global_credentials.yml
+
+  roles:
+    - xtrabackup

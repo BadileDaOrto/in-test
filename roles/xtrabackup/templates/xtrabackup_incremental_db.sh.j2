@@ -1,0 +1,23 @@
+#!/bin/sh
+#--------
+# Backup MySQL by mm@rodin - 20130924
+
+WHERE="{{ backup_path }}"
+#DATABASES="$WHERE/databases.txt"
+DATA=`date +%y%m%d`
+TIME=28
+
+cd $WHERE
+  if [ "`pwd`" = "$WHERE" ] ; then
+    find -mtime +$TIME -type f -name "*.sql.gz" -exec rm {} \;
+  fi
+cd
+
+{# mysql -u {{ backup_usr }} -p{{ backup_pwd }} -e "show databases" -E | grep -v "*" | grep -v "performance_schema" | gawk '{print $2}' > $DATABASES
+  for NOME in `cat $DATABASES`; do
+    mysqldump -u {{ backup_usr }} -p{{ backup_pwd }} $NOME --add-drop-table --single-transaction --events --force | gzip -9 > $WHERE/$NOME.$DATA.sql.gz
+  done #}
+
+xtrabackup --backup --encrypt=AES256 --encrypt-key-file={{ secure_key_path }}
+
+innobackupex --incremental-force-scan --compact --databases=testone --incrmental --stream=tar /opt/backup/ | xz > /opt/backup/$(date +%Y%m%d-%H_%M_%S).txz

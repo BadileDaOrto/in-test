@@ -1,0 +1,30 @@
+---
+  ##TODO: install percona xtrabackup
+  ## centos 7 x86_64: wget https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.4.4/binary/redhat/7/x86_64/percona-xtrabackup-24-2.4.4-1.el7.x86_64.rpm
+  ## yum localinstall percona-xtrabackup-24-2.4.4-1.el7.x86_64.rpm
+  ## centos 6 x86_64: wget https://www.percona.com/downloads/XtraBackup/Percona-XtraBackup-2.4.4/binary/redhat/6/x86_64/percona-xtrabackup-24-2.4.4-1.el6.x86_64.rpm
+  ## yum localinstall percona-xtrabackup-24-2.4.4-1.el6.x86_64.rpm
+  ##mysql> CREATE USER 'bkpuser'@'localhost' IDENTIFIED BY 's3cret';
+  ##mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'bkpuser'@'localhost';
+  ##mysql> FLUSH PRIVILEGES;
+
+  # - name: create backup directory
+  #   file: "path={{ backup_path }} state=directory owner=root group=root mode=0750"
+  #
+  # - name: copy backup script
+  #   template: src=backup_db.sh.j2 dest=/opt/scripts/backup_db.sh owner=root mode=0700 backup=yes
+  #
+  # - name: touch crontab
+  #   file: path=/etc/crontab state=touch
+  #
+  # - name: add backup script to crontab file
+  #   lineinfile:
+  #     'dest=/etc/crontab
+  #     insertafter="EOF"
+  #     regexp="^#?[0-9\*\s\t\-]+root[\s\t]+/opt/scripts/backup_db.sh"
+  #     line="30 21 * * *	root /opt/scripts/backup_db.sh"
+  #     state=present
+  #     backup=yes'
+  #
+  # - name: create backup user on mysql with custom privileges
+  #   mysql_user: login_user=root login_password={{ mysql_root_password }} name={{ backup_usr }} host=localhost password={{ backup_pwd }} priv="*.*:SELECT,FILE,LOCK TABLES,SHOW VIEW,PROCESS,EVENT"
